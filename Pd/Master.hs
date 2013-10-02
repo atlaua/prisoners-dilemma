@@ -43,22 +43,21 @@ playN steps agents = sumScores $ foldl' playN' buildMap pairs
 
 
 play2 :: Steps -> (Agent, Agent) -> (Score, Score)
-play2 = play2' (0, 0) (Init, Init)
-
-play2' :: (Score, Score) -> (Action, Action) -> Steps -> (Agent, Agent) -> (Score, Score)
-play2' scores _ 0 _ = scores
-play2' scores (action1, action2) n (agent1, agent2) = play2' (scores `addScores` scores')
-                                                                 actions
-                                                                 (n-1)
-                                                                 (nextAgent decision1, nextAgent decision2)
+play2 steps agents = extractScores $ iterate play2' (agents, (0, 0), (Init, Init)) !! steps
     where
-    scores' = table actions
-    actions = (action decision1, action decision2)
+    extractScores (_, s, _) = s
+
+play2' :: ((Agent, Agent), (Score, Score), (Action, Action)) -> ((Agent, Agent), (Score, Score), (Action, Action))
+play2' ((agent1, agent2), scores, (action1, action2)) = (agents', scores', actions')
+    where
+    agents' = (nextAgent decision1, nextAgent decision2)
+    scores' = scores `addScores` table actions'
+    actions' = (action decision1, action decision2)
+
     decision1 = runAgent agent1 action2
     decision2 = runAgent agent2 action1
 
-addScores :: (Score, Score) -> (Score, Score) -> (Score, Score)
-addScores (s1a, s2a) (s1b, s2b) = (s1a+s1b, s2a+s2b)
+    addScores (s1a, s2a) (s1b, s2b) = (s1a+s1b, s2a+s2b)
 
 
 table :: (Action, Action) -> (Score, Score)
