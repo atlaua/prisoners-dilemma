@@ -10,6 +10,7 @@ module Pd.Master
 
 import Data.Function (on)
 import Data.List (groupBy, sort, tails)
+import Data.Map.Strict (fromListWith, toAscList)
 
 import Pd.Types
 
@@ -25,7 +26,7 @@ playN :: Steps -> [Agent] -> [Score]
 playN n = sumScores . playN' n . genPairs
 
 sumScores :: [IdScore] -> [Score]
-sumScores = map (sum . map snd) . groupBy ((==) `on` fst) . sort
+sumScores = map snd . toAscList . fromListWith (+)
 
 playN' :: Steps -> [(IdAgent, IdAgent)] -> [IdScore]
 playN' n = concatMap mapper
