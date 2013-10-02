@@ -9,34 +9,37 @@ module Pd.Master
     ) where
 
 import Data.Function (on)
-import Data.List (groupBy, sort, tails)
-import Data.Map.Strict (fromListWith, toAscList)
+import Data.List (foldl')
+import Data.Map.Strict ((!))
+
+import qualified Data.Map.Strict as M
 
 import Pd.Types
 
 
-type AgentId = Int
-type IdAgent = (AgentId, Agent)
-type IdScore = (AgentId, Score)
+type Id = Int
 type Score = Int
 type Steps = Int
 
 
 playN :: Steps -> [Agent] -> [Score]
-playN n = sumScores . playN' n . genPairs
-
-sumScores :: [IdScore] -> [Score]
-sumScores = map snd . toAscList . fromListWith (+)
-
-playN' :: Steps -> [(IdAgent, IdAgent)] -> [IdScore]
-playN' n = concatMap mapper
+playN steps agents = sumScores $ foldl' playN' buildMap pairs
     where
-    mapper ((i1, a1), (i2, a2)) = [(i1, s1), (i2, s2)]
-        where
-        (s1, s2) = play2 n (a1, a2)
+    sumScores :: M.Map Id (Agent, Score) -> [Score]
+    sumScores = map (snd . snd) . M.toAscList
 
-genPairs :: [Agent] -> [(IdAgent, IdAgent)]
-genPairs agents = concat [map (x,) xs | (x:xs) <- init . tails $ zip [0..] agents]
+    buildMap :: M.Map Id (Agent, Score)
+    buildMap = M.fromList . zip [0..] . zip agents $ repeat 0
+
+    pairs = [(i, j) | i <- [0..n], j <- [i+1..n]]
+    n = length agents - 1
+
+    playN' :: M.Map Id (Agent, Score) -> (Id, Id) -> M.Map Id (Agent, Score)
+    playN' m (i1, i2) = M.update (addScore s1) i1 $ M.update (addScore s2) i2 m
+        where
+        (s1, s2) = play2 steps ((getAgent i1), (getAgent i2))
+        getAgent = fst . (m !)
+        addScore s' = Just . (\(a, s) -> (a, s+s'))
 
 
 play2 :: Steps -> (Agent, Agent) -> (Score, Score)
