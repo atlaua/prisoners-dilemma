@@ -8,6 +8,7 @@ module Pd.Master
     , table
     ) where
 
+import Control.Arrow (second)
 import Data.Function (on)
 import Data.List (foldl')
 import Data.Map.Strict ((!))
@@ -29,17 +30,17 @@ playN steps agents = sumScores $ foldl' playN' buildMap pairs
     sumScores = map (snd . snd) . M.toAscList
 
     buildMap :: M.Map Id (Agent, Score)
-    buildMap = M.fromList . zip [0..] . zip agents $ repeat 0
+    buildMap = M.fromDistinctAscList . zip [0..] . zip agents $ repeat 0
 
     pairs = [(i, j) | i <- [0..n], j <- [i+1..n]]
     n = length agents - 1
 
     playN' :: M.Map Id (Agent, Score) -> (Id, Id) -> M.Map Id (Agent, Score)
-    playN' m (i1, i2) = M.update (addScore s1) i1 $ M.update (addScore s2) i2 m
+    playN' m (i1, i2) = M.adjust (addScore s1) i1 $ M.adjust (addScore s2) i2 m
         where
         (s1, s2) = play2 steps ((getAgent i1), (getAgent i2))
         getAgent = fst . (m !)
-        addScore s' = Just . (\(a, s) -> (a, s+s'))
+        addScore s' = second (+s')
 
 
 play2 :: Steps -> (Agent, Agent) -> (Score, Score)
