@@ -25,19 +25,17 @@ playN :: Steps -> [Agent] -> [Score]
 playN n = sumScores . playN' n . genPairs
 
 sumScores :: [IdScore] -> [Score]
-sumScores = map snd . map reduce . groupBy ((==) `on` fst) . sort
-    where
-    reduce x = (fst $ head x, sum $ map snd x)
+sumScores = map (sum . map snd) . groupBy ((==) `on` fst) . sort
 
 playN' :: Steps -> [(IdAgent, IdAgent)] -> [IdScore]
-playN' n = concat . map mapper
+playN' n = concatMap mapper
     where
     mapper ((i1, a1), (i2, a2)) = [(i1, s1), (i2, s2)]
         where
         (s1, s2) = play2 n (a1, a2)
 
 genPairs :: [Agent] -> [(IdAgent, IdAgent)]
-genPairs agents = concat $ [map (x,) xs | (x:xs) <- init . tails $ zip [0..] agents]
+genPairs agents = concat [map (x,) xs | (x:xs) <- init . tails $ zip [0..] agents]
 
 
 play2 :: Steps -> (Agent, Agent) -> (Score, Score)
@@ -52,8 +50,8 @@ play2' scores (action1, action2) n (agent1, agent2) = play2' (scores `addScores`
     where
     scores' = table actions
     actions = (action decision1, action decision2)
-    decision1 = (runAgent agent1) action2
-    decision2 = (runAgent agent2) action1
+    decision1 = runAgent agent1 action2
+    decision2 = runAgent agent2 action1
 
 addScores :: (Score, Score) -> (Score, Score) -> (Score, Score)
 addScores (s1a, s2a) (s1b, s2b) = (s1a+s1b, s2a+s2b)

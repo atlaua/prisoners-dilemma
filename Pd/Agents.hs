@@ -22,7 +22,7 @@ alwaysD = statelessAgent $ const Defect
 
 
 titForThat :: Agent
-titForThat = statelessAgent $ titForThat'
+titForThat = statelessAgent titForThat'
 
 titForThat' :: StatelessAgent
 titForThat' Init = Cooperate
