@@ -1,16 +1,10 @@
-module Pd.Agents 
+module Pd.Agents.Examples
     ( alwaysC
     , alwaysD
     , titForThat
     ) where
 
-import Pd.Types
-
-
-type StatelessAgent = Action -> Action
-
-statelessAgent :: StatelessAgent -> Agent
-statelessAgent ag = Agent $ \act-> Decision (statelessAgent ag) (ag act)
+import Pd.Agents.Core
 
 
 alwaysC :: Agent

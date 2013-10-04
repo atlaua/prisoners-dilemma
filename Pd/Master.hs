@@ -15,7 +15,7 @@ import Data.Map.Strict ((!))
 
 import qualified Data.Map.Strict as M
 
-import Pd.Types
+import Pd.Agents.Core
 
 
 type Id = Int

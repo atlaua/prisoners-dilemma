@@ -1,2 +1,2 @@
-import Pd.Agents
+import Pd.Agents.Examples
 import Pd.Master
