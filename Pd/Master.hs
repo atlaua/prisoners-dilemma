@@ -38,7 +38,7 @@ playN steps agents = sumScores $ foldl' playN' buildMap pairs
     playN' :: M.Map Id (Agent, Score) -> (Id, Id) -> M.Map Id (Agent, Score)
     playN' m (i1, i2) = M.adjust (addScore s1) i1 $ M.adjust (addScore s2) i2 m
         where
-        (s1, s2) = play2 steps ((getAgent i1), (getAgent i2))
+        (s1, s2) = play2 steps (getAgent i1, getAgent i2)
         getAgent = fst . (m !)
         addScore s' = second (+s')
 
