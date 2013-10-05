@@ -4,6 +4,8 @@ module Pd.Agents.Examples
     , titForThat
     ) where
 
+import Data.Maybe (fromMaybe)
+
 import Pd.Agents.Core
 
 
@@ -16,8 +18,4 @@ alwaysD = statelessAgent $ const Defect
 
 
 titForThat :: Agent
-titForThat = statelessAgent titForThat'
-
-titForThat' :: StatelessAgent
-titForThat' Init = Cooperate
-titForThat' a = a
+titForThat = statelessAgent $ fromMaybe Cooperate

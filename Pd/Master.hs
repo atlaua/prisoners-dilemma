@@ -44,12 +44,12 @@ playN steps agents = sumScores $ foldl' playN' buildMap pairs
 
 
 play2 :: Steps -> (Agent, Agent) -> (Score, Score)
-play2 steps agents = extractScores $ iterate play2' (agents, (0, 0), (Init, Init)) !! steps
+play2 steps agents = extractScores $ iterate play2' (agents, (0, 0), Nothing) !! steps
     where
     extractScores (_, s, _) = s
 
-play2' :: ((Agent, Agent), (Score, Score), (Action, Action)) -> ((Agent, Agent), (Score, Score), (Action, Action))
-play2' ((agent1, agent2), scores, (action1, action2)) = (agents', scores', actions')
+play2' :: ((Agent, Agent), (Score, Score), Maybe (Action, Action)) -> ((Agent, Agent), (Score, Score), Maybe (Action, Action))
+play2' ((agent1, agent2), scores, actions) = (agents', scores', Just actions')
     where
     agents' = (nextAgent decision1, nextAgent decision2)
     scores' = scores `addScores` table actions'
@@ -58,7 +58,12 @@ play2' ((agent1, agent2), scores, (action1, action2)) = (agents', scores', actio
     decision1 = runAgent agent1 action2
     decision2 = runAgent agent2 action1
 
+    (action1, action2) = spreadMaybe actions
+
     addScores (s1a, s2a) (s1b, s2b) = (s1a+s1b, s2a+s2b)
+
+    spreadMaybe Nothing = (Nothing, Nothing)
+    spreadMaybe (Just (a, b)) = (Just a, Just b)
 
 
 table :: (Action, Action) -> (Score, Score)

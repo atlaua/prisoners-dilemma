@@ -1,14 +1,14 @@
 module Pd.Agents.Core where
 
 
-data Action = Cooperate | Defect | Init deriving Show
-newtype Agent = Agent {runAgent :: Action -> (Agent, Action)}
+data Action = Cooperate | Defect deriving Show
+newtype Agent = Agent {runAgent :: Maybe Action -> (Agent, Action)}
 
 nextAgent = fst
 action = snd
 
 
-type StatelessAgent = Action -> Action
+type StatelessAgent = Maybe Action -> Action
 
 statelessAgent :: StatelessAgent -> Agent
 statelessAgent ag = Agent $ \act-> (statelessAgent ag, ag act)
